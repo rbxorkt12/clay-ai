@@ -1,0 +1,148 @@
+cli_name: npm
+version: "10.2.4"
+description: "Node Package Manager (npm) CLI preferences and common patterns for package management"
+
+environment_variables:
+  required:
+    - NODE_ENV          # development/production
+    - NPM_TOKEN        # For private package registry
+    - NPM_CONFIG_REGISTRY  # Optional, for custom registry
+
+commands:
+  install:
+    base: "npm install"
+    options:
+      - "--production"  # Skip devDependencies
+      - "--frozen-lockfile"  # Ensure consistent installs
+      - "-g"           # Global installation
+    example: "npm install --production"
+    notes: |
+      Package installation command that:
+      - Reads dependencies from package.json
+      - Creates/updates package-lock.json
+      - Handles nested dependencies
+      - Supports both ESM and CommonJS
+      - Manages global and local packages
+      
+  run:
+    base: "npm run"
+    options:
+      - "--"  # Pass arguments to script
+    subcommands:
+      dev:
+        command: "npm run dev"
+        notes: |
+          Development server that:
+          - Watches for file changes
+          - Enables hot reloading
+          - Loads environment variables
+          - Supports debugging
+          
+      build:
+        command: "npm run build"
+        notes: |
+          Build process that:
+          - Compiles TypeScript/JavaScript
+          - Bundles dependencies
+          - Optimizes assets
+          - Generates production files
+          
+      test:
+        command: "npm test"
+        options:
+          - "--coverage"
+          - "--watch"
+        notes: |
+          Testing command that:
+          - Runs test suites
+          - Generates coverage reports
+          - Supports watch mode
+          - Handles different test environments
+
+  publish:
+    base: "npm publish"
+    options:
+      - "--access public"
+      - "--tag latest"
+    example: "npm publish --access public"
+    notes: |
+      Package publishing command that:
+      - Validates package.json
+      - Checks version conflicts
+      - Uploads to registry
+      - Updates package metadata
+      - Handles scoped packages
+
+configuration:
+  npmrc:
+    description: "npm configuration file (.npmrc)"
+    example: |
+      registry=https://registry.npmjs.org/
+      save-exact=true
+      package-lock=true
+      audit=true
+    notes: |
+      Configuration options:
+      - Registry settings
+      - Authentication tokens
+      - Proxy configuration
+      - Package locking
+      - Version management
+
+error_patterns:
+  - pattern: "npm ERR! 404"
+    solution: |
+      Package not found:
+      1. Check package name spelling
+      2. Verify package exists in registry
+      3. Check npm registry status
+      4. Try clearing npm cache
+      
+  - pattern: "npm ERR! EACCES"
+    solution: |
+      Permission error:
+      1. Check file permissions
+      2. Use sudo for global installs
+      3. Fix npm directory ownership
+      4. Configure npm to use local directory
+      
+  - pattern: "npm ERR! code ERESOLVE"
+    solution: |
+      Dependency conflict:
+      1. Check package versions
+      2. Update conflicting dependencies
+      3. Clear npm cache
+      4. Delete node_modules and reinstall
+
+best_practices:
+  - title: "Package Management"
+    description: |
+      Maintain clean dependency tree:
+      - Use exact versions in package.json
+      - Regularly update dependencies
+      - Audit for security issues
+      - Clean unused dependencies
+      
+  - title: "Version Control"
+    description: |
+      Handle package versions:
+      - Follow semantic versioning
+      - Use npm version for updates
+      - Tag releases appropriately
+      - Update changelog
+      
+  - title: "Security"
+    description: |
+      Maintain security:
+      - Regular security audits
+      - Update vulnerable packages
+      - Use npm audit fix
+      - Review package sources
+      
+  - title: "Performance"
+    description: |
+      Optimize installation:
+      - Use npm ci in CI/CD
+      - Cache node_modules
+      - Use package-lock.json
+      - Clean install on version changes 

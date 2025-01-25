@@ -1,0 +1,55 @@
+cli_name: github
+version: latest
+description: "GitHub CLI preferences and common patterns"
+
+environment_variables:
+  required:
+    - GITHUB_TOKEN
+
+commands:
+  clone:
+    base: "gh repo clone"
+    options:
+      - "--depth 1"  # Shallow clone for faster downloads
+    example: "gh repo clone rdmtv7/midday-v1 --depth 1"
+    notes: "Use for quick repository cloning"
+
+  create:
+    base: "gh repo create"
+    options:
+      - "--private"
+      - "--source=."
+    example: "gh repo create rdmtv7/midday-v1 --private --source=."
+    notes: "Creates new repository from current directory"
+
+  pr:
+    base: "gh pr create"
+    options:
+      - "--fill"  # Auto-fill title and body from commits
+    example: "gh pr create --fill"
+    notes: "Creates PR with automatic title and description"
+
+git_commands:
+  commit:
+    base: "git commit"
+    options:
+      - "-m"
+    patterns:
+      - "feat: new feature"
+      - "fix: bug fix"
+      - "chore: maintenance"
+      - "docs: documentation"
+    example: "git commit -m 'feat: implement structured logging system'"
+
+  push:
+    base: "git push"
+    options:
+      - "origin master"
+    example: "git push origin master"
+    notes: "Push to default branch"
+
+best_practices:
+  - "Use conventional commit messages"
+  - "Always create PRs for significant changes"
+  - "Keep commits atomic and focused"
+  - "Use --depth 1 for faster clones when full history isn't needed" 

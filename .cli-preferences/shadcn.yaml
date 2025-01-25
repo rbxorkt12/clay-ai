@@ -1,0 +1,154 @@
+name: shadcn-ui
+version: 1.0.0
+description: CLI preferences for shadcn-ui installation and component management
+
+cli_automation:
+  # Project Creation
+  create_project:
+    command: "npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias '@/*'"
+    auto_answers:
+      - question: "Would you like to use TypeScript?"
+        answer: "Yes"
+        flags: "--typescript"
+      - question: "Would you like to use Tailwind CSS?"
+        answer: "Yes"
+        flags: "--tailwind"
+      - question: "Would you like to use ESLint?"
+        answer: "Yes"
+        flags: "--eslint"
+      - question: "Would you like to use `src/` directory?"
+        answer: "Yes"
+        flags: "--src-dir"
+      - question: "Would you like to use App Router?"
+        answer: "Yes"
+        flags: "--app"
+      - question: "Would you like to customize the default import alias (@/*)?"
+        answer: "Yes"
+        flags: "--import-alias '@/*'"
+      - question: "Would you like to use Turbopack?"
+        answer: "No"
+        flags: ""
+
+  # Dependencies Installation
+  install_dependencies:
+    command: "npm install -D @types/node @types/react @types/react-dom typescript"
+    additional_packages:
+      - "@radix-ui/react-icons"
+      - "class-variance-authority"
+      - "clsx"
+      - "tailwind-merge"
+      - "tailwindcss-animate"
+      - "@radix-ui/react-slot"
+      - "@radix-ui/react-dialog"
+      - "@radix-ui/react-select"
+      - "@radix-ui/react-tabs"
+      - "@radix-ui/react-hover-card"
+      - "lucide-react"
+
+  # ShadCN Initialization
+  init_shadcn:
+    command: "npx shadcn-ui@latest init"
+    auto_answers:
+      - question: "Would you like to use TypeScript?"
+        answer: "Yes"
+      - question: "Which style would you like to use?"
+        answer: "New York"
+      - question: "Would you like to use CSS variables for colors?"
+        answer: "Yes"
+      - question: "Where is your global CSS file?"
+        answer: "src/app/globals.css"
+      - question: "Where is your tailwind.config.js file?"
+        answer: "tailwind.config.ts"
+      - question: "Configure the import alias for components:"
+        answer: "@/components"
+      - question: "Configure the import alias for utils:"
+        answer: "@/lib/utils"
+      - question: "Write configuration to components.json"
+        answer: "Yes"
+
+  # Component Installation
+  install_components:
+    base_command: "npx shadcn-ui@latest add"
+    components_groups:
+      essential:
+        - "button"
+        - "card"
+        - "dialog"
+        - "form"
+        - "input"
+        - "label"
+        - "select"
+        - "tabs"
+      data_visualization:
+        - "table"
+        - "hover-card"
+        - "scroll-area"
+        - "separator"
+      layout:
+        - "sheet"
+        - "navigation-menu"
+        - "dropdown-menu"
+      feedback:
+        - "toast"
+        - "progress"
+        - "skeleton"
+
+file_structure:
+  required_directories:
+    - "src/components/ui"
+    - "src/lib"
+    - "src/app"
+    - "src/styles"
+
+  config_files:
+    - path: "components.json"
+      content:
+        $schema: "https://ui.shadcn.com/schema.json"
+        style: "new-york"
+        rsc: true
+        tsx: true
+        tailwind:
+          config: "tailwind.config.ts"
+          css: "src/app/globals.css"
+          baseColor: "zinc"
+          cssVariables: true
+        aliases:
+          components: "@/components"
+          utils: "@/lib/utils"
+
+  utils_setup:
+    - path: "src/lib/utils.ts"
+      content: |
+        import { type ClassValue, clsx } from "clsx"
+        import { twMerge } from "tailwind-merge"
+
+        export function cn(...inputs: ClassValue[]) {
+          return twMerge(clsx(inputs))
+        }
+
+error_handling:
+  retry_attempts: 3
+  retry_delay: 2000
+  error_messages:
+    - pattern: "Could not create a project"
+      action: "clean_directory"
+    - pattern: "command not found"
+      action: "install_dependencies"
+    - pattern: "TypeError"
+      action: "retry_command"
+
+post_install_verification:
+  checks:
+    - type: "file_exists"
+      paths:
+        - "src/components/ui"
+        - "src/lib/utils.ts"
+        - "components.json"
+    - type: "dependency_installed"
+      packages:
+        - "@radix-ui/react-icons"
+        - "class-variance-authority"
+    - type: "component_working"
+      test_components:
+        - "Button"
+        - "Card"
