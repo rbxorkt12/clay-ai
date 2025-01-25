@@ -1,0 +1,103 @@
+name: clay_ai
+description: Clay AI - A Python Agent Framework for Building Production-Grade AI Applications
+version: 0.1.0
+
+structure:
+  core:
+    description: Core functionality and services
+    files:
+      - __init__.py
+      - config.py: Configuration management using Pydantic V2
+      - database.py: Database connections and session management
+      - events.py: Event system and WebSocket management
+      - logging.py: Logging configuration and utilities
+      - security.py: Authentication and authorization
+
+  models:
+    description: Pydantic V2 models and schemas
+    files:
+      - __init__.py
+      - agents.py: Agent-related models and enums
+      - tasks.py: Task-related models and enums
+      - events.py: Event-related models and schemas
+      - responses.py: Common response models
+      - validators.py: Custom validators and field types
+
+  agents:
+    description: Agent implementations
+    files:
+      - __init__.py
+      - base.py: Base agent class with PydanticAI integration
+      - executor.py: Task execution agent
+      - planner.py: Task planning agent
+      - observer.py: Monitoring agent
+      - coordinator.py: Multi-agent coordination
+
+  api:
+    description: FastAPI routes and endpoints
+    files:
+      - __init__.py
+      - agents.py: Agent management endpoints
+      - tasks.py: Task management endpoints
+      - events.py: WebSocket and event endpoints
+      - auth.py: Authentication endpoints
+      - monitoring.py: Health and metrics endpoints
+
+  utils:
+    description: Utility functions and helpers
+    files:
+      - __init__.py
+      - async_utils.py: Async helper functions
+      - sandbox.py: E2B sandbox utilities
+      - metrics.py: Prometheus metrics helpers
+      - telemetry.py: OpenTelemetry utilities
+
+  tests:
+    description: Test suite
+    unit:
+      description: Unit tests
+      files:
+        - __init__.py
+        - test_agents.py: Agent tests
+        - test_tasks.py: Task tests
+        - test_events.py: Event system tests
+        - test_models.py: Model validation tests
+    integration:
+      description: Integration tests
+      files:
+        - __init__.py
+        - test_api.py: API endpoint tests
+        - test_workflows.py: End-to-end workflow tests
+        - test_sandbox.py: E2B sandbox tests
+
+root_files:
+  - main.py: Application entry point
+  - __init__.py: Package initialization
+  - pyproject.toml: Project configuration and dependencies
+  - poetry.lock: Locked dependencies
+  - README.md: Project documentation
+  - LICENSE: MIT license
+  - .env.example: Environment variables template
+  - .gitignore: Git ignore patterns
+  - vercel.json: Vercel deployment configuration
+
+dependencies:
+  runtime:
+    - fastapi: ^0.104.1
+    - uvicorn: ^0.24.0
+    - pydantic: ^2.5.3
+    - pydantic-ai: ^0.0.19
+    - pydantic-settings: ^2.1.0
+    - sqlalchemy: ^2.0.25
+    - asyncpg: ^0.28.0
+    - redis: ^5.0.1
+    - e2b: ^0.13.8
+    - prometheus-client: ^0.19.0
+    - opentelemetry-api: ^1.21.0
+
+  development:
+    - pytest: ^7.4.4
+    - pytest-asyncio: ^0.23.3
+    - black: ^23.12.1
+    - mypy: ^1.8.0
+    - ruff: ^0.1.11

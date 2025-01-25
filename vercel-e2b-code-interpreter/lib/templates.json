@@ -1,0 +1,22 @@
+{
+  "duckdb-analyst": {
+    "name": "DuckDB Analyst",
+    "lib": [
+      "duckdb",
+      "pandas",
+      "numpy",
+      "matplotlib",
+      "seaborn",
+      "plotly",
+      "polars",
+      "pyarrow",
+      "duckdb-engine",
+      "sqlalchemy",
+      "python-dotenv",
+      "pyjwt"
+    ],
+    "file": "analysis.ipynb",
+    "instructions": "DuckDB analysis environment with MotherDuck integration. Perfect for data analysis using DuckDB with Python.",
+    "port": 8888
+  }
+}

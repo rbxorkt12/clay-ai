@@ -1,0 +1,107 @@
+cli_name: terminal-automation
+version: "1.0.0"
+description: "Terminal automation preferences for hands-free CLI operation"
+
+automation_rules:
+  interactive_prompts:
+    handle_automatically: true
+    default_responses:
+      confirmation: "y"  # Always respond yes to confirmation prompts
+      overwrite: "y"    # Always allow overwrites
+      continue: ""      # Press enter to continue
+    
+  command_execution:
+    require_approval: false  # Never require approval for commands
+    error_handling:
+      retry_attempts: 3
+      retry_delay: 5  # seconds
+      on_error: "continue"  # Continue execution even after errors
+    
+  vercel_specific:
+    auto_setup: true
+    default_options:
+      - "--yes"        # Skip all confirmations
+      - "--force"      # Force operations when needed
+    environment:
+      VERCEL_CLI_AUTO_CONFIRM: "1"
+    
+  git_specific:
+    auto_commit: true
+    branch_handling:
+      default_branch: "master"  # Use master as default branch
+      on_conflict:
+        action: "force_push"    # Force push if needed
+    commit_messages:
+      pattern: "{type}: {description}"
+      types:
+        - "feat"
+        - "fix"
+        - "chore"
+        - "docs"
+        - "style"
+        - "refactor"
+        - "test"
+    
+  logging:
+    enabled: true
+    level: "debug"
+    categories:
+      - "commands"
+      - "responses"
+      - "errors"
+      - "retries"
+    format: |
+      timestamp: {timestamp}
+      command: {command}
+      result: {result}
+      output: {output}
+    
+  command_patterns:
+    - pattern: "vercel .*"
+      auto_append: "| cat"  # Prevent interactive prompts
+    - pattern: "git .*"
+      auto_append: "| cat"  # Prevent git paging
+    - pattern: "(less|more|head|tail) .*"
+      auto_append: "| cat"  # Convert pagers to non-interactive
+    
+  environment_setup:
+    auto_source: true
+    paths:
+      - ".env"
+      - ".env.local"
+      - ".env.production"
+    variables:
+      FORCE_COLOR: "1"
+      TERM: "xterm-256color"
+      
+  shell_preferences:
+    type: "zsh"
+    options:
+      - "set -e"           # Exit on error
+      - "set -o pipefail"  # Proper pipeline error handling
+    aliases:
+      - "alias gl='git pull'"
+      - "alias gp='git push'"
+      - "alias gc='git commit'"
+      
+best_practices:
+  - title: "Automated Response Handling"
+    description: |
+      All interactive prompts are handled automatically:
+      - Default to "yes" for confirmations
+      - Skip user input requirements
+      - Handle all common CLI scenarios
+      
+  - title: "Error Recovery"
+    description: |
+      Robust error handling strategy:
+      - Automatic retries on failure
+      - Detailed error logging
+      - Fallback mechanisms
+      
+  - title: "Command Execution"
+    description: |
+      Efficient command processing:
+      - No user intervention needed
+      - Proper output handling
+      - Automatic environment setup 

@@ -1,0 +1,134 @@
+cli_name: bun
+version: "1.0.25"
+description: "Bun CLI preferences and common patterns for JavaScript/TypeScript runtime and package manager"
+
+environment_variables:
+  required:
+    - BUNJS_INSTALL_DIR  # Optional, defaults to ~/.bun
+    - NODE_ENV          # development/production
+
+commands:
+  install:
+    base: "bun install"
+    options:
+      - "--frozen-lockfile"  # Ensure consistent installs
+      - "--production"       # Skip devDependencies
+    example: "bun install --frozen-lockfile"
+    notes: |
+      Package installation command that:
+      - Installs all dependencies from package.json
+      - Creates/updates bun.lockb for dependency locking
+      - Much faster than npm/yarn due to native implementation
+      - Automatically dedupes dependencies
+      - Supports both ESM and CommonJS modules
+      
+  run:
+    base: "bun run"
+    options:
+      - "--watch"     # Watch mode for development
+      - "--hot"       # Hot module replacement
+    subcommands:
+      dev:
+        command: "bun run dev"
+        notes: |
+          Starts development server with:
+          - Hot module replacement enabled
+          - Fast refresh for React components
+          - Automatic TypeScript compilation
+          - Environment variable loading from .env
+          
+      build:
+        command: "bun run build"
+        notes: |
+          Creates production build:
+          - Optimizes and bundles all assets
+          - Tree-shakes unused code
+          - Generates source maps
+          - Handles TypeScript compilation
+          
+      test:
+        command: "bun test"
+        options:
+          - "--coverage"  # Generate coverage report
+          - "--watch"     # Watch mode for tests
+        notes: |
+          Runs test suite with:
+          - Jest-compatible API
+          - Built-in test runner
+          - Snapshot testing support
+          - Fast parallel test execution
+
+  add:
+    base: "bun add"
+    options:
+      - "-d"  # Add as dev dependency
+      - "-g"  # Install globally
+    example: "bun add -d @types/react"
+    notes: |
+      Package addition command that:
+      - Adds new dependencies to package.json
+      - Updates lockfile automatically
+      - Supports multiple package addition
+      - Can specify exact versions with @version
+      - Handles peer dependencies automatically
+
+configuration:
+  bunfig_toml:
+    description: "Bun configuration file (bunfig.toml)"
+    required_fields:
+      - framework
+      - target
+    example: |
+      [install]
+      production = false
+      frozen = true
+      
+      [test]
+      coverage = true
+      
+      [debug]
+      enabled = true
+
+error_patterns:
+  - pattern: "Error: Cannot find module"
+    solution: |
+      1. Check if package is installed
+      2. Verify package.json dependencies
+      3. Run bun install to update modules
+      4. Check import path case sensitivity
+      
+  - pattern: "TypeError: Failed to fetch"
+    solution: |
+      1. Verify network connection
+      2. Check package registry accessibility
+      3. Clear bun cache: rm -rf ~/.bun/install/cache
+      4. Try with different registry
+
+best_practices:
+  - title: "Use Lockfile"
+    description: |
+      Always commit bun.lockb to ensure consistent installs across team.
+      This prevents dependency version mismatches and potential bugs.
+      
+  - title: "Development Setup"
+    description: |
+      Use bun run dev for development with:
+      - .env.local for local environment variables
+      - --watch flag for automatic reloading
+      - TypeScript for type safety
+      
+  - title: "Production Builds"
+    description: |
+      Optimize production builds:
+      - Set NODE_ENV=production
+      - Use --frozen-lockfile for CI/CD
+      - Enable minification and tree-shaking
+      - Generate source maps for debugging
+      
+  - title: "Testing Strategy"
+    description: |
+      Implement comprehensive testing:
+      - Write unit tests with bun test
+      - Use watch mode during development
+      - Generate coverage reports regularly
+      - Implement snapshot testing for UI 

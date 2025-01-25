@@ -1,0 +1,184 @@
+cli_name: vercel
+version: "39.3.0"
+description: "Vercel CLI preferences and common patterns for deployment and project management"
+
+deployment_strategy:
+  preferred: "github"  # GitHub-based deployments
+  fallback: "cli"     # Direct CLI deployments as fallback
+  reasoning: |
+    GitHub-based deployments are preferred because:
+    - Faster deployments through build caching
+    - Better monorepo detection and handling
+    - Automatic branch previews
+    - More reliable dependency installation
+    - Improved build artifact caching
+    - Better deployment logs and history
+
+environment_variables:
+  required:
+    - VERCEL_ORG_ID      # Organization ID from Vercel dashboard
+    - VERCEL_PROJECT_ID   # Project ID from Vercel dashboard
+    - NEXT_PUBLIC_SUPABASE_URL
+    - NEXT_PUBLIC_OPENPANEL_CLIENT_ID
+
+package_managers:
+  preferred: "bun"  # Local development
+  fallback: "npm"   # Vercel deployment
+  compatibility:
+    bun:
+      local_only: true
+      commands:
+        install: "bun install"
+        build: "bun run build"
+        dev: "bun run dev"
+    npm:
+      vercel_compatible: true
+      commands:
+        install: "npm install"
+        build: "npm run build"
+        dev: "npm run dev"
+
+github_workflow:
+  setup:
+    steps:
+      - name: "Push to GitHub"
+        command: |
+          git add .
+          git commit -m "feat: update deployment configuration"
+          git push origin main
+        notes: "Ensure all changes are committed and pushed"
+      
+      - name: "Connect to Vercel"
+        url: "https://vercel.com/superdisco/midday-v1/settings/git"
+        actions:
+          - "Click Connect Git Repository"
+          - "Select GitHub repository"
+          - "Configure root directory as apps/web"
+        notes: "Set up GitHub integration in Vercel dashboard"
+      
+      - name: "Configure Build Settings"
+        url: "https://vercel.com/superdisco/midday-v1/settings/general"
+        settings:
+          - "Framework Preset: Next.js"
+          - "Root Directory: apps/web"
+          - "Build Command: npm run build"
+          - "Install Command: npm install"
+        notes: "Configure proper monorepo settings"
+
+commands:
+  deploy:
+    base: "vercel deploy"
+    warning: |
+      ⚠️ CLI deployment not recommended!
+      Use GitHub-based deployments instead:
+      1. Push changes to GitHub
+      2. Vercel will auto-deploy
+      3. Monitor at vercel.com/dashboard
+    options:
+      - "--prod"  # Deploy to production
+      - "--yes"   # Skip confirmation
+    example: "git push origin main  # Preferred over vercel deploy"
+    notes: |
+      Deployment preferences:
+      1. GitHub-based (Preferred):
+         - Push to GitHub
+         - Automatic deployment
+         - Better caching and reliability
+      2. CLI-based (Fallback):
+         - Use only if GitHub deployment not possible
+         - May have caching/build issues
+         - Slower and less reliable
+      
+  link:
+    base: "vercel link"
+    options:
+      - "--yes"   # Skip confirmation
+    environment:
+      - VERCEL_ORG_ID
+      - VERCEL_PROJECT_ID
+    notes: |
+      Project linking command:
+      - Only needed for CLI deployments
+      - Not required for GitHub deployments
+      - Use for environment variable sync
+      
+  env:
+    pull:
+      base: "vercel env pull"
+      options:
+        - "--environment=production"
+      example: "vercel env pull .env.production.local"
+      notes: |
+        Environment variable management:
+        - Syncs variables to local environment
+        - Required for local development
+        - Works with both deployment methods
+
+configuration:
+  project_json:
+    description: "Project-specific configuration (apps/web/vercel.json)"
+    warning: |
+      ⚠️ Minimal vercel.json recommended!
+      Let Vercel auto-detect settings when possible.
+    required_fields:
+      - framework  # Only if auto-detection fails
+    deployment_config: |
+      {
+        "framework": "nextjs"
+      }
+    notes: |
+      Configuration best practices:
+      - Minimize vercel.json configuration
+      - Let Vercel auto-detect settings
+      - Use dashboard for complex configs
+      - Keep monorepo settings in dashboard
+
+error_patterns:
+  - pattern: "Error: Command .* exited with 1"
+    solution: |
+      Build failure:
+      1. Push to GitHub instead of CLI deploy
+      2. Check build logs in Vercel dashboard
+      3. Verify monorepo settings
+      4. Test build locally first
+      
+  - pattern: "Error: No Output Directory named"
+    solution: |
+      Output directory issues:
+      1. Configure root directory in Vercel dashboard
+      2. Verify GitHub integration settings
+      3. Check framework detection
+      4. Test build locally
+
+best_practices:
+  - title: "Preferred Deployment Flow"
+    description: |
+      Always use GitHub-based deployments:
+      - Push changes to GitHub
+      - Let Vercel auto-deploy
+      - Monitor in dashboard
+      - Use CLI only as fallback
+      
+  - title: "Monorepo Management"
+    description: |
+      Handle monorepo properly:
+      - Configure root directory in dashboard
+      - Use minimal vercel.json
+      - Let Vercel handle build caching
+      - Keep build settings in dashboard
+      
+  - title: "Local Development"
+    description: |
+      Maintain efficient workflow:
+      - Use Bun for local development
+      - Pull env variables as needed
+      - Test builds before pushing
+      - Monitor GitHub deployments
+      
+  - title: "Troubleshooting"
+    description: |
+      When issues occur:
+      1. Check Vercel dashboard logs
+      2. Verify GitHub integration
+      3. Test build locally
+      4. Use CLI as last resort 

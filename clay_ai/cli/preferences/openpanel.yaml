@@ -1,0 +1,68 @@
+cli_name: openpanel
+version: latest
+description: "OpenPanel CLI preferences and common patterns"
+
+environment_variables:
+  required:
+    - NEXT_PUBLIC_OPENPANEL_CLIENT_ID
+    - OPENPANEL_API_KEY
+
+commands:
+  init:
+    base: "openpanel init"
+    options:
+      - "--client-id"
+    example: "openpanel init --client-id xxx"
+    notes: "Initialize OpenPanel project"
+
+  deploy:
+    base: "openpanel deploy"
+    options:
+      - "--env production"
+      - "--force"  # Skip confirmation
+    example: "openpanel deploy --env production --force"
+    notes: "Deploy to production environment"
+
+  events:
+    track:
+      base: "openpanel events track"
+      options:
+        - "--type"
+        - "--properties"
+      example: "openpanel events track --type user_action --properties '{\"action\":\"click\"}'"
+      notes: "Track custom events"
+
+    list:
+      base: "openpanel events list"
+      options:
+        - "--limit 100"
+        - "--format json"
+      example: "openpanel events list --limit 100 --format json"
+      notes: "List recent events"
+
+configuration:
+  openpanel_config:
+    required_fields:
+      - client_id
+      - environment
+    example: |
+      {
+        "client_id": "xxx",
+        "environment": "production",
+        "tracking": {
+          "enabled": true,
+          "auto_track": ["pageview", "click"]
+        }
+      }
+
+error_patterns:
+  - pattern: "Error: Invalid client ID"
+    solution: "Check NEXT_PUBLIC_OPENPANEL_CLIENT_ID in environment"
+  - pattern: "Error: Authentication failed"
+    solution: "Verify OPENPANEL_API_KEY is correct"
+
+best_practices:
+  - "Use environment-specific client IDs"
+  - "Track meaningful events with proper context"
+  - "Keep API keys secure in environment variables"
+  - "Use auto-tracking for common events" 

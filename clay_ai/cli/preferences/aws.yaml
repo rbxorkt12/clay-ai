@@ -1,0 +1,93 @@
+version: "1.0"
+name: aws-cli
+description: AWS CLI preferences and commonly used commands
+
+settings:
+  default_region: us-west-2
+  output_format: json
+  profile: default
+
+command_categories:
+  s3:
+    priority: high
+    frequently_used:
+      - name: list-buckets
+        command: aws s3 ls
+        frequency: 0
+      - name: sync-upload
+        command: aws s3 sync . s3://bucket-name
+        frequency: 0
+      - name: sync-download
+        command: aws s3 sync s3://bucket-name .
+        frequency: 0
+
+  lambda:
+    priority: high
+    frequently_used:
+      - name: list-functions
+        command: aws lambda list-functions
+        frequency: 0
+      - name: invoke-function
+        command: aws lambda invoke --function-name FUNCTION_NAME output.json
+        frequency: 0
+      - name: update-function
+        command: aws lambda update-function-code --function-name FUNCTION_NAME --zip-file fileb://function.zip
+        frequency: 0
+
+  iam:
+    priority: medium
+    frequently_used:
+      - name: list-users
+        command: aws iam list-users
+        frequency: 0
+      - name: list-roles
+        command: aws iam list-roles
+        frequency: 0
+
+  ec2:
+    priority: medium
+    frequently_used:
+      - name: list-instances
+        command: aws ec2 describe-instances
+        frequency: 0
+      - name: start-instance
+        command: aws ec2 start-instances --instance-ids INSTANCE_ID
+        frequency: 0
+
+api_endpoints:
+  base_path: /aws
+  routes:
+    - path: /s3
+      methods: [GET, POST]
+      description: S3 operations
+    - path: /lambda
+      methods: [GET, POST, PUT]
+      description: Lambda operations
+    - path: /iam
+      methods: [GET]
+      description: IAM operations
+    - path: /ec2
+      methods: [GET, POST]
+      description: EC2 operations
+
+shortcuts:
+  s3_sync: aws s3 sync
+  lambda_invoke: aws lambda invoke
+  ec2_list: aws ec2 describe-instances
+
+automation_scripts:
+  - name: bucket_backup
+    description: Backup specific buckets
+    schedule: daily
+    command: aws s3 sync /local/backup s3://backup-bucket
+
+  - name: lambda_deployment
+    description: Deploy Lambda functions
+    schedule: on-demand
+    command: aws lambda update-function-code
+
+monitoring:
+  command_history: true
+  frequency_tracking: true
+  error_logging: true
+  performance_metrics: true

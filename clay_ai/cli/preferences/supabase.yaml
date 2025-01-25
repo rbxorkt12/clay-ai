@@ -1,0 +1,69 @@
+cli_name: supabase
+version: latest
+description: "Supabase CLI preferences and common patterns"
+
+environment_variables:
+  required:
+    - SUPABASE_ACCESS_TOKEN
+    - NEXT_PUBLIC_SUPABASE_URL
+    - NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+commands:
+  init:
+    base: "supabase init"
+    options:
+      - "--project-id"
+    example: "supabase init --project-id xxx"
+    notes: "Initialize Supabase project"
+
+  start:
+    base: "supabase start"
+    options:
+      - "--no-browser"  # Don't open browser automatically
+    example: "supabase start --no-browser"
+    notes: "Start local Supabase development"
+
+  db:
+    push:
+      base: "supabase db push"
+      options:
+        - "--dry-run"  # Preview changes
+      example: "supabase db push"
+      notes: "Push database changes"
+
+    reset:
+      base: "supabase db reset"
+      options:
+        - "--force"  # Skip confirmation
+      example: "supabase db reset --force"
+      notes: "Reset local database"
+
+  migration:
+    new:
+      base: "supabase migration new"
+      example: "supabase migration new add_users_table"
+      notes: "Create new migration file"
+
+configuration:
+  config_toml:
+    required_fields:
+      - project_id
+      - database_url
+    example: |
+      [api]
+      port = 54321
+      schemas = ["public", "storage"]
+      extra_search_path = ["public", "extensions"]
+      max_rows = 1000
+
+error_patterns:
+  - pattern: "Error: Project not linked"
+    solution: "Run supabase link --project-ref xxx"
+  - pattern: "Error: Database connection failed"
+    solution: "Check database URL and credentials"
+
+best_practices:
+  - "Always use migrations for database changes"
+  - "Test migrations locally before pushing"
+  - "Keep sensitive data in .env files"
+  - "Use --dry-run for database changes preview" 
