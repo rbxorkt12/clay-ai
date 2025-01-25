@@ -1,0 +1,6 @@
+Before doing each step, always check current status using commnad like tree.
+IF you want to add or modify file, then visit the file first, and check the code of the file.
+First Always visit folder_structure.yaml file and check the project file structure
+
+Important : Before Doing Something, Always start with "tree -I '__pycache__|node_modules|env|.venv|dist|build|.git|.vscode|.idea|*.log|*.tmp|*.bak|*.orig|*.pyo|*.pyc|*.class|*.o|.DS_Store|Thumbs.db|Icon\r|.pytest_cache|.mypy_cache|coverage' command.
+"

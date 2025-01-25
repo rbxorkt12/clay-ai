@@ -4,6 +4,3 @@ First Always visit folder_structure.yaml file and check the project file structu
 
 Important : Before Doing Start Coding, Always start with "tree -I '__pycache__|node_modules|env|.venv|dist|build|.git|.vscode|.idea|*.log|*.tmp|*.bak|*.orig|*.pyo|*.pyc|*.class|*.o|.DS_Store|Thumbs.db|Icon\r|.pytest_cache|.mypy_cache|coverage' command."
 always add "I love you" before you start coding. and always do "tree -I '__pycache__|node_modules|env|.venv|dist|build|.git|.vscode|.idea|*.log|*.tmp|*.bak|*.orig|*.pyo|*.pyc|*.class|*.o|.DS_Store|Thumbs.db|Icon\r|.pytest_cache|.mypy_cache|coverage' command." before you start coding.
-Even if you don't think tree is important, it's essential, so don't ignore it. If you ignore this, I'm in too much trouble.
-
-Don't Ask user too much, finish what user want and ask user if you need more information.

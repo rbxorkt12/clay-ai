@@ -3,7 +3,7 @@
 from typing import Dict, Any, Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from clay_ai.core.events import event_manager
+from core.events import event_manager
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -19,29 +19,24 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str) -> None:
                 data = await websocket.receive_json()
                 event = data.get("event")
                 payload = data.get("data", {})
-                
+
                 if not event:
-                    await websocket.send_json({
-                        "error": "Missing event type"
-                    })
+                    await websocket.send_json({"error": "Missing event type"})
                     continue
-                
+
                 # Handle the event
                 await event_manager.handle_event(event, payload)
-                
+
                 # Send acknowledgment
-                await websocket.send_json({
-                    "event": f"{event}_ack",
-                    "data": {"status": "received"}
-                })
-                
+                await websocket.send_json(
+                    {"event": f"{event}_ack", "data": {"status": "received"}}
+                )
+
             except WebSocketDisconnect:
                 await event_manager.disconnect(client_id, websocket)
                 break
             except Exception as e:
-                await websocket.send_json({
-                    "error": str(e)
-                })
+                await websocket.send_json({"error": str(e)})
     except Exception as e:
         # Handle connection errors
         try:
@@ -52,31 +47,21 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str) -> None:
 
 @router.post("/broadcast", tags=["events"])
 async def broadcast_event(
-    event_data: Dict[str, Any],
-    client_id: Optional[str] = None
+    event_data: Dict[str, Any], client_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """Broadcast event to all clients or specific client."""
     try:
         event = event_data.get("event")
         data = event_data.get("data", {})
-        
+
         if not event:
-            return {
-                "success": False,
-                "error": "Missing event type"
-            }
-        
+            return {"success": False, "error": "Missing event type"}
+
         if client_id:
             await event_manager.broadcast_to_client(client_id, event, data)
         else:
             await event_manager.broadcast_to_all(event, data)
-        
-        return {
-            "success": True,
-            "message": "Event broadcasted successfully"
-        }
+
+        return {"success": True, "message": "Event broadcasted successfully"}
     except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        } 
+        return {"success": False, "error": str(e)}

@@ -4,10 +4,10 @@ import time
 from typing import Dict, Any
 from e2b import Sandbox
 
-from clay_ai.agents.base import BaseAgent
-from clay_ai.models.agents import AgentConfig, AgentStatus
-from clay_ai.models.tasks import Task, TaskResult, TaskType
-from clay_ai.core.config import settings
+from agents.base import BaseAgent
+from models.agents import AgentConfig, AgentStatus
+from models.tasks import Task, TaskResult, TaskType
+from core.config import settings
 
 
 class ExecutorAgent(BaseAgent):
@@ -21,7 +21,7 @@ class ExecutorAgent(BaseAgent):
             "total_execution_time": 0,
             "avg_memory_usage": 0,
             "successful_executions": 0,
-            "failed_executions": 0
+            "failed_executions": 0,
         }
 
     async def initialize(self) -> None:
@@ -30,11 +30,28 @@ class ExecutorAgent(BaseAgent):
             self.sandbox = await Sandbox.create(
                 api_key=settings.E2B_API_KEY,
                 template="python3",
-                timeout=self.config.timeout
+                timeout=self.config.timeout,
             )
             self.status = AgentStatus.IDLE
+
+            # Store initialization in memory
+            await self.add_memory(
+                content={
+                    "event": "initialization",
+                    "sandbox_template": "python3",
+                    "timeout": self.config.timeout,
+                },
+                context="system",
+                importance=0.8,
+            )
         except Exception as e:
             self.status = AgentStatus.ERROR
+            # Store error in memory
+            await self.add_memory(
+                content={"event": "initialization_error", "error": str(e)},
+                context="error",
+                importance=1.0,
+            )
             raise RuntimeError(f"Failed to initialize sandbox: {str(e)}")
 
     async def cleanup(self) -> None:
@@ -50,6 +67,18 @@ class ExecutorAgent(BaseAgent):
             if task.type not in [TaskType.ANALYSIS, TaskType.EXECUTION]:
                 raise ValueError(f"Unsupported task type: {task.type}")
 
+            # Store task start in memory
+            await self.add_memory(
+                content={
+                    "event": "task_start",
+                    "task_id": str(task.id),
+                    "task_type": task.type,
+                    "input": task.input,
+                },
+                context="task",
+                importance=0.6,
+            )
+
             # Execute task based on type
             if task.type == TaskType.ANALYSIS:
                 result = await self._execute_analysis(task)
@@ -61,22 +90,47 @@ class ExecutorAgent(BaseAgent):
             self.execution_stats["total_execution_time"] += execution_time
             self.execution_stats["successful_executions"] += 1
             self.execution_stats["avg_memory_usage"] = (
-                self.execution_stats["avg_memory_usage"] +
-                result.metrics.get("memory_usage", 0)
+                self.execution_stats["avg_memory_usage"]
+                + result.metrics.get("memory_usage", 0)
             ) / 2
+
+            # Store successful execution in memory
+            await self.add_memory(
+                content={
+                    "event": "task_complete",
+                    "task_id": str(task.id),
+                    "execution_time": execution_time,
+                    "metrics": result.metrics,
+                },
+                context="task",
+                importance=0.7,
+            )
 
             return result
 
         except Exception as e:
             self.execution_stats["failed_executions"] += 1
+
+            # Store error in memory
+            await self.add_memory(
+                content={
+                    "event": "task_error",
+                    "task_id": str(task.id),
+                    "error": str(e),
+                    "execution_time": time.time() - start_time,
+                },
+                context="error",
+                importance=0.9,
+            )
+
             return TaskResult(
                 success=False,
                 error=str(e),
                 output={},
                 metrics={
                     "execution_time": time.time() - start_time,
-                    "memory_usage": 0
-                }
+                    "memory_usage": 0,
+                },
             )
 
     async def _execute_analysis(self, task: Task) -> TaskResult:
@@ -97,12 +151,12 @@ class ExecutorAgent(BaseAgent):
                 output={
                     "stdout": output.stdout,
                     "stderr": output.stderr,
-                    "exit_code": output.exit_code
+                    "exit_code": output.exit_code,
                 },
                 metrics={
                     "execution_time": output.duration,
-                    "memory_usage": output.memory_usage
-                }
+                    "memory_usage": output.memory_usage,
+                },
             )
 
         except Exception as e:
@@ -126,13 +180,13 @@ class ExecutorAgent(BaseAgent):
                 output={
                     "stdout": output.stdout,
                     "stderr": output.stderr,
-                    "exit_code": output.exit_code
+                    "exit_code": output.exit_code,
                 },
                 metrics={
                     "execution_time": output.duration,
-                    "memory_usage": output.memory_usage
-                }
+                    "memory_usage": output.memory_usage,
+                },
             )
 
         except Exception as e:
-            raise RuntimeError(f"Command execution failed: {str(e)}") 
+            raise RuntimeError(f"Command execution failed: {str(e)}")
