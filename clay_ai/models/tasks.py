@@ -9,6 +9,7 @@ from uuid import UUID, uuid4
 
 class TaskPriority(str, Enum):
     """Task priority levels."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -17,6 +18,7 @@ class TaskPriority(str, Enum):
 
 class TaskStatus(str, Enum):
     """Task status states."""
+
     PENDING = "pending"
     SCHEDULED = "scheduled"
     RUNNING = "running"
@@ -27,33 +29,31 @@ class TaskStatus(str, Enum):
 
 class TaskType(str, Enum):
     """Available task types."""
+
     ANALYSIS = "analysis"
     PLANNING = "planning"
     EXECUTION = "execution"
     COORDINATION = "coordination"
     OBSERVATION = "observation"
     LINT = "lint"
+    CRAWL = "crawl"
+    STORE = "store"
 
 
 class TaskResult(BaseModel):
     """Task execution result."""
+
     success: bool = Field(default=False)
     output: Dict[str, Any] = Field(default_factory=dict)
     error: Optional[str] = None
     metrics: Dict[str, Any] = Field(default_factory=dict)
-    
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "success": True,
-                "output": {
-                    "total_files": 2,
-                    "fixed_errors": 5
-                },
-                "metrics": {
-                    "execution_time": 1.23,
-                    "memory_used": 256
-                }
+                "output": {"total_files": 2, "fixed_errors": 5},
+                "metrics": {"execution_time": 1.23, "memory_used": 256},
             }
         }
     )
@@ -61,6 +61,7 @@ class TaskResult(BaseModel):
 
 class TaskConfig(BaseModel):
     """Task configuration settings."""
+
     timeout: int = 300
     max_retries: int = 3
     required_capabilities: List[str] = Field(default_factory=list)
@@ -69,6 +70,7 @@ class TaskConfig(BaseModel):
 
 class Task(BaseModel):
     """Core task model."""
+
     id: UUID = Field(default_factory=uuid4)
     type: TaskType = Field(default=TaskType.ANALYSIS)
     priority: TaskPriority = Field(default=TaskPriority.MEDIUM)
@@ -82,7 +84,7 @@ class Task(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -90,10 +92,10 @@ class Task(BaseModel):
                 "type": "lint",
                 "input": {
                     "files": ["file1.py", "file2.py"],
-                    "error_types": ["E501", "F401"]
+                    "error_types": ["E501", "F401"],
                 },
                 "assigned_agent": "linter-1",
-                "started_at": "2024-01-24T12:00:00Z"
+                "started_at": "2024-01-24T12:00:00Z",
             }
         }
     )
@@ -101,6 +103,7 @@ class Task(BaseModel):
 
 class TaskCreate(BaseModel):
     """Schema for creating a task."""
+
     type: TaskType = Field(..., description="Task type")
     priority: Optional[TaskPriority] = None
     config: Optional[TaskConfig] = None
@@ -110,6 +113,7 @@ class TaskCreate(BaseModel):
 
 class TaskUpdate(BaseModel):
     """Schema for updating a task."""
+
     priority: Optional[TaskPriority] = None
     status: Optional[TaskStatus] = None
     config: Optional[TaskConfig] = None
@@ -119,9 +123,10 @@ class TaskUpdate(BaseModel):
 
 class TaskResponse(BaseModel):
     """Schema for task responses."""
+
     success: bool = Field(..., description="Operation success status")
     message: str = Field(..., description="Response message")
     task: Optional[Task] = Field(None, description="Task data")
 
 
-Task.model_rebuild()  # Update forward refs 
+Task.model_rebuild()  # Update forward refs
